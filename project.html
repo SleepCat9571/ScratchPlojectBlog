@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Project | More Features</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --text-main: #ffffff;
+            --text-sub: #a0a0a0;
+            --border-color: #2c2c2c;
+            --accent-gray: #333333;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 5%;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            margin-bottom: 40px;
+            border-left: 4px solid #fff;
+            padding-left: 15px;
+        }
+
+        /* グリッドレイアウト */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 200px;
+            background: #252525;
+            object-fit: cover;
+        }
+
+        .card-content { padding: 25px; }
+        .card h3 { margin: 0 0 10px 0; font-size: 1.3rem; }
+        .card p { color: var(--text-sub); font-size: 0.95rem; margin: 0; }
+
+        /* --- 「もっと見る」の仕掛け --- */
+        
+        /* 1. 最初は隠しておくエリア */
+        .more-content {
+            display: none; /* 通常は非表示 */
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* 2. チェックボックスを隠す */
+        #show-more-check {
+            display: none;
+        }
+
+        /* 3. ボタンのデザイン（ラベルをボタンに見せる） */
+        .btn-more-label {
+            display: block;
+            width: 200px;
+            margin: 50px auto;
+            padding: 15px;
+            text-align: center;
+            background: var(--accent-gray);
+            color: var(--text-main);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 1px solid var(--border-color);
+            transition: 0.3s;
+        }
+
+        .btn-more-label:hover {
+            background: #444;
+        }
+
+        /* 4. チェックが入ったら隠しコンテンツを表示する */
+        #show-more-check:checked ~ .grid .more-content {
+            display: block; /* 表示にする */
+            opacity: 1;
+        }
+
+        /* 5. チェックが入ったらボタン自体を消す */
+        #show-more-check:checked ~ .btn-more-label {
+            display: none;
+        }
+
+        footer { text-align: center; padding: 100px 0 50px; color: var(--text-sub); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="section-title">Features</h2>
+
+        <input type="checkbox" id="show-more-check">
+
+        <div class="grid">
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1614850523296-d8c1af93d400?q=80&w=800" class="card-image">
+                <div class="card-content">
+                    <h3>基本機能 A</h3>
+                    <p>ここには最初から表示されている重要な機能の説明を書きます。</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1633356122544-f134324a6cee?q=80&w=800" class="card-image">
+                <div class="card-content">
+                    <h3>基本機能 B</h3>
+                    <p>Monotのようにシンプルで使いやすい、美しいレイアウトです。</p>
+                </div>
+            </div>
+
+            <div class="card more-content">
+                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=800" class="card-image">
+                <div class="card-content">
+                    <h3>追加機能 C</h3>
+                    <p>「もっと見る」を押すと現れる、隠れた便利な機能です。</p>
+                </div>
+            </div>
+
+            <div class="card more-content">
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=800" class="card-image">
+                <div class="card-content">
+                    <h3>追加機能 D</h3>
+                    <p>HTMLだけで実装しているので、読み込みも非常に高速です。</p>
+                </div>
+            </div>
+        </div>
+
+        <label for="show-more-check" class="btn-more-label">もっと見る</label>
+
+    </div>
+
+    <footer>
+        &copy; 2024 Monochrome Project.
+    </footer>
+
+</body>
+</html>
