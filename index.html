@@ -16,6 +16,8 @@
             --accent-gray: #333333;
             --border-color: #2c2c2c;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            --discord-color: #5865F2;
+            --like-color: #ff4757;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -84,7 +86,7 @@
         }
         #sidebar-check:checked ~ .overlay { display: block; }
 
-        /* ヘルプモーダル */
+        /* モーダル */
         .modal {
             position: fixed; top: 50%; left: 50%;
             transform: translate(-50%, -50%);
@@ -101,7 +103,6 @@
         }
         #help-check:checked ~ .modal-overlay { display: block; }
 
-        /* ヘッダー */
         header {
             text-align: center;
             padding: 100px 20px;
@@ -116,7 +117,6 @@
         h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 20px; }
         .hero-text { color: var(--text-sub); max-width: 600px; margin: 0 auto 30px; }
 
-        /* ボタン */
         .btn {
             display: inline-block; padding: 12px 30px;
             border-radius: 8px; text-decoration: none;
@@ -125,7 +125,6 @@
         .btn-primary { background: #fff; color: #121212; }
         .btn-primary:hover { background: #ccc; }
 
-        /* メインコンテンツ */
         .container { max-width: 1100px; margin: 0 auto; padding: 60px 5%; }
         .section-title { font-size: 1.8rem; margin-bottom: 40px; border-left: 4px solid #fff; padding-left: 15px; }
 
@@ -140,13 +139,11 @@
             border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);
             transition: 0.3s;
         }
-        .card:hover { transform: translateY(-5px); }
         .card img { width: 100%; height: auto; display: block; }
         .card-content { padding: 25px; border-top: 1px solid var(--border-color); }
         .card-content h3 { margin-bottom: 10px; }
         .card-content p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; }
 
-        /* もっと見るの制御 */
         .more-content { display: none; }
         #show-more-check:checked ~ .container .grid .more-content { display: block; animation: fadeIn 0.5s forwards; }
         #show-more-check:checked ~ .container .btn-more { display: none; }
@@ -159,7 +156,33 @@
             border: 1px solid var(--border-color); font-weight: bold;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* インタラクションセクション（いいね・フィードバック） */
+        .interaction-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            margin-top: 60px;
+            text-align: center;
+        }
+        .like-box { margin-bottom: 40px; }
+        .btn-like {
+            background: var(--like-color); color: white;
+            font-size: 1.2rem; padding: 12px 35px;
+            border-radius: 50px; border: none; cursor: pointer;
+            transition: 0.3s; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-like:hover { transform: scale(1.05); }
+        
+        .feedback-box { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 15px; }
+        .feedback-input {
+            background: var(--accent-gray); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 15px; color: white; resize: vertical; font-family: inherit;
+        }
+        .btn-send {
+            background: var(--discord-color); color: white;
+            border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;
+        }
 
         /* メンバー */
         .member-card {
@@ -168,61 +191,30 @@
             border-radius: 15px; border: 1px solid var(--border-color);
             margin-top: 40px;
         }
-        .member-info span { font-size: 0.9rem; color: var(--text-sub); }
+
+        /* 通知 */
+        .notification {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: #2a2a2a; color: white; padding: 15px 25px;
+            border-radius: 50px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            border: 1px solid #444; z-index: 1000; transition: 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            width: max-content; max-width: 90%;
+        }
+        .notification.show { bottom: 30px; }
+        .notif-content { display: flex; align-items: center; gap: 12px; }
+        .notif-badge { background: #fff; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
+        .notif-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
+
+        /* 送信完了ステータス */
+        #status-msg {
+            position: fixed; top: 20px; right: 20px;
+            background: #2ed573; color: white; padding: 10px 20px;
+            border-radius: 8px; display: none; z-index: 2000; animation: fadeIn 0.3s;
+        }
 
         footer { text-align: center; padding: 60px; color: var(--text-sub); font-size: 0.8rem; }
         .search-hide { display: none !important; }
-
-        /* 通知ポップアップのスタイル */
-.notification {
-    position: fixed;
-    bottom: -100px; /* 最初は画面の下に隠す */
-    left: 50%;
-    transform: translateX(-50%);
-    background: #2a2a2a;
-    color: white;
-    padding: 15px 25px;
-    border-radius: 50px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-    border: 1px solid #444;
-    z-index: 1000;
-    transition: bottom 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    width: max-content;
-    max-width: 90%;
-}
-
-.notification.show {
-    bottom: 30px; /* 画面下から30pxの位置に浮き上がる */
-}
-
-.notif-content {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.notif-badge {
-    background: #fff;
-    color: #000;
-    font-size: 0.7rem;
-    font-weight: bold;
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-.notif-close {
-    background: none;
-    border: none;
-    color: #888;
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-    margin-left: 10px;
-}
-
-.notif-close:hover {
-    color: #fff;
-}
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -312,7 +304,7 @@
                 <img src="https://uploads.scratch.mit.edu/get_image/project/1261118333_480x360.png">
                 <div class="card-content">
                     <h3>立ち絵作ったよー！</h3>
-                    <p>立ち絵書いたよ～！（一部トレス）ついでに自己紹介もあるらしい。</p>
+                    <p>立ち絵書いたよ～！ついでに自己紹介もあるらしい。</p>
                     <a href="https://scratch.mit.edu/projects/1261118333/" class="btn btn-primary">今すぐ試す</a>
                 </div>
             </div>
@@ -329,29 +321,51 @@
 
         <label for="show-more-check" class="btn-more">その他の作品を表示</label>
 
+        <section class="interaction-section">
+            <div class="like-box">
+                <h2 style="margin-bottom: 15px;">サイトを応援</h2>
+                <button class="btn-like" onclick="sendLike()">
+                    ❤ いいね！ <span id="like-count">0</span>
+                </button>
+            </div>
+            <div class="feedback-box">
+                <h2>フィードバックを送る</h2>
+                <textarea id="fb-text" class="feedback-input" rows="3" placeholder="感想や改善案をDiscordに送ります..."></textarea>
+                <button class="btn-send" onclick="sendFeedback()">Discordへ送信</button>
+            </div>
+        </section>
+
         <div style="margin: 60px 0; height: 1px; background: var(--border-color);"></div>
 
         <h2 class="section-title">ホームページ作成者</h2>
         <div class="member-card">
-            <img src="ドット絵みかんネコ.png" style="width:60px; height:60px; border-radius:50%; background:#333;">
+            <img src="ドット絵みかんネコ.png" style="width:60px; height:60px; border-radius:50%; background:#333;" alt="icon">
             <div class="member-info">
                 <strong>Mikancat10</strong><br>
                 <span>HTML/CSS、JavaScriptができます。対応時間：14:00~22:00</span>
             </div>
         </div>
     </main>
-<div id="welcome-notification" class="notification">
-    <div class="notif-content">
-        <span class="notif-badge">NEW</span>
-        <p>サイトを更新しました！検索機能が使えます。</p>
-        <button onclick="closeNotif()" class="notif-close">&times;</button>
+
+    <div id="welcome-notification" class="notification">
+        <div class="notif-content">
+            <span class="notif-badge">NEW</span>
+            <p>サイトを更新しました！検索機能が使えます。</p>
+            <button onclick="closeNotif()" class="notif-close">&times;</button>
+        </div>
     </div>
-</div>
+
+    <div id="status-msg"></div>
+
     <footer>
         <p>&copy; 2026 MCProject. All rights reserved.</p>
     </footer>
 
     <script>
+        // --- 設定：ここにWebhook URLを貼ってください ---
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
+
+        // 検索機能
         const searchInput = document.getElementById('js-search');
         const projects = document.querySelectorAll('.project-item');
 
@@ -361,7 +375,6 @@
                 const title = project.querySelector('h3').innerText.toLowerCase();
                 if (title.includes(query)) {
                     project.classList.remove('search-hide');
-                    // 検索時は隠れている作品も一時的に見えるようにする
                     if(project.classList.contains('more-content') && query !== "") {
                         project.style.display = "block";
                     } else if(project.classList.contains('more-content') && !document.getElementById('show-more-check').checked) {
@@ -372,20 +385,74 @@
                 }
             });
         });
-        // ページ読み込みから1秒後に通知を表示
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        document.getElementById('welcome-notification').classList.add('show');
-    }, 1000); // 1000ms = 1秒
-});
 
-// 通知を閉じる関数
-function closeNotif() {
-    document.getElementById('welcome-notification').classList.remove('show');
-}
+        // いいね機能
+        let likes = parseInt(localStorage.getItem('mc_likes')) || 0;
+        document.getElementById('like-count').innerText = likes;
+
+        function sendLike() {
+            likes++;
+            document.getElementById('like-count').innerText = likes;
+            localStorage.setItem('mc_likes', likes);
+            notifyStatus("いいねを送りました！");
+
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "❤ サイトに「いいね」がつきました！",
+                        description: `現在の合計いいね: **${likes}**`,
+                        color: 16730199
+                    }]
+                })
+            });
+        }
+
+        // フィードバック機能
+        function sendFeedback() {
+            const text = document.getElementById('fb-text').value;
+            if(!text) return alert("内容を入力してください");
+
+            notifyStatus("送信中...");
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "📩 新しいフィードバック",
+                        description: text,
+                        color: 5814770,
+                        timestamp: new Date()
+                    }]
+                })
+            }).then(() => {
+                notifyStatus("送信完了しました！");
+                document.getElementById('fb-text').value = "";
+            });
+        }
+
+        function notifyStatus(msg) {
+            const el = document.getElementById('status-msg');
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => { el.style.display = "none"; }, 3000);
+        }
+
+        // ウェルカム通知
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                document.getElementById('welcome-notification').classList.add('show');
+            }, 1000);
+        });
+
+        function closeNotif() {
+            document.getElementById('welcome-notification').classList.remove('show');
+        }
     </script>
 </body>
 </html>
+
 
 
 
