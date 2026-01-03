@@ -364,81 +364,53 @@
     <script>
         // --- 設定：ここにWebhook URLを貼ってください ---
         const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
+// --- 設定：それぞれのチャンネルのURLを貼り付けてください ---
+const LIKE_WEBHOOK_URL = "https://discord.com/channels/1446054090852274311/1453653579834589349";
+// --- いいね機能 ---
+function sendLike() {
+    likes++;
+    document.getElementById('like-count').innerText = likes;
+    localStorage.setItem('mc_likes', likes);
+    notifyStatus("いいねを送りました！");
 
-        // 検索機能
-        const searchInput = document.getElementById('js-search');
-        const projects = document.querySelectorAll('.project-item');
+    // 【いいね専用】のURLに送る
+    fetch(LIKE_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            embeds: [{
+                title: "❤ サイトに「いいね」がつきました！",
+                description: `現在の合計いいね: **${likes}**`,
+                color: 16730199
+            }]
+        })
+    });
+}
 
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.toLowerCase();
-            projects.forEach(project => {
-                const title = project.querySelector('h3').innerText.toLowerCase();
-                if (title.includes(query)) {
-                    project.classList.remove('search-hide');
-                    if(project.classList.contains('more-content') && query !== "") {
-                        project.style.display = "block";
-                    } else if(project.classList.contains('more-content') && !document.getElementById('show-more-check').checked) {
-                        project.style.display = "none";
-                    }
-                } else {
-                    project.classList.add('search-hide');
-                }
-            });
-        });
+// --- フィードバック機能 ---
+function sendFeedback() {
+    const text = document.getElementById('fb-text').value;
+    if(!text) return alert("内容を入力してください");
 
-        // いいね機能
-        let likes = parseInt(localStorage.getItem('mc_likes')) || 0;
-        document.getElementById('like-count').innerText = likes;
+    notifyStatus("送信中...");
 
-        function sendLike() {
-            likes++;
-            document.getElementById('like-count').innerText = likes;
-            localStorage.setItem('mc_likes', likes);
-            notifyStatus("いいねを送りました！");
-
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "❤ サイトに「いいね」がつきました！",
-                        description: `現在の合計いいね: **${likes}**`,
-                        color: 16730199
-                    }]
-                })
-            });
-        }
-
-        // フィードバック機能
-        function sendFeedback() {
-            const text = document.getElementById('fb-text').value;
-            if(!text) return alert("内容を入力してください");
-
-            notifyStatus("送信中...");
-            fetch(DISCORD_WEBHOOK_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "📩 新しいフィードバック",
-                        description: text,
-                        color: 5814770,
-                        timestamp: new Date()
-                    }]
-                })
-            }).then(() => {
-                notifyStatus("送信完了しました！");
-                document.getElementById('fb-text').value = "";
-            });
-        }
-
-        function notifyStatus(msg) {
-            const el = document.getElementById('status-msg');
-            el.innerText = msg;
-            el.style.display = "block";
-            setTimeout(() => { el.style.display = "none"; }, 3000);
-        }
-
+    // 【フィードバック専用】のURLに送る
+    fetch(FEEDBACK_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            embeds: [{
+                title: "📩 新しいフィードバック",
+                description: text,
+                color: 5814770,
+                timestamp: new Date()
+            }]
+        })
+    }).then(() => {
+        notifyStatus("送信完了しました！");
+        document.getElementById('fb-text').value = "";
+    });
+}
         // ウェルカム通知
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
@@ -452,6 +424,7 @@
     </script>
 </body>
 </html>
+
 
 
 
