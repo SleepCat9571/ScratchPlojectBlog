@@ -338,6 +338,186 @@
                 <span>HTML/CSS、JavaScriptができます。対応時間：14:00~22:00</span>
             </div>
         </div>
+        <style>
+        :root {
+            --bg-body: #121212;
+            --bg-card: #1e1e1e;
+            --bg-nav: rgba(18, 18, 18, 0.9);
+            --bg-sidebar: #181818;
+            --text-main: #ffffff;
+            --text-sub: #a0a0a0;
+            --accent-gray: #333333;
+            --border-color: #2c2c2c;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- サイドバー制御 (チェックボックス) --- */
+        #sidebar-check, #help-check, #show-more-check { display: none; }
+
+        /* --- ナビゲーション --- */
+        nav {
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            background: var(--bg-nav);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* ハンバーガーアイコン */
+        .menu-btn {
+            cursor: pointer;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 110;
+        }
+        .menu-btn div { width: 22px; height: 2px; background: #fff; transition: 0.3s; }
+
+        .logo { font-weight: 700; font-size: 1.2rem; margin-left: 20px; letter-spacing: 1px; }
+
+        /* --- サイドバー本体 --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100%;
+            background: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            z-index: 150;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 100px 30px;
+        }
+
+        #sidebar-check:checked ~ .sidebar { left: 0; }
+
+        .sidebar-item {
+            display: block;
+            color: var(--text-main);
+            text-decoration: none;
+            padding: 15px 0;
+            font-size: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .sidebar-item:hover { color: var(--text-sub); padding-left: 10px; }
+
+        /* 背景を暗くする */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 140;
+            display: none;
+        }
+        #sidebar-check:checked ~ .overlay { display: block; }
+
+        /* --- ヘルプモーダル --- */
+        .modal {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 90%; max-width: 450px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 35px;
+            z-index: 300;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+            text-align: center;
+        }
+
+        #help-check:checked ~ .modal { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 250;
+            display: none;
+        }
+        #help-check:checked ~ .modal-overlay { display: block; }
+
+        .close-btn {
+            display: inline-block;
+            margin-top: 25px;
+            padding: 10px 30px;
+            background: var(--accent-gray);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* --- 既存コンテンツの調整 --- */
+        header { text-align: center; padding: 100px 20px; background: radial-gradient(circle at center, #1a1a1a 0%, #121212 100%); }
+        .badge { display: inline-block; padding: 4px 12px; background: var(--accent-gray); color: var(--text-sub); border-radius: 6px; font-size: 0.8rem; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); margin-bottom: 20px; }
+        .hero-text { color: var(--text-sub); font-size: 1rem; max-width: 600px; margin: 0 auto 30px; }
+        .btn-group { display: flex; justify-content: center; gap: 15px; }
+
+        .btn { display: inline-block; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s; border: none; cursor: pointer; }
+        .btn-primary { background-color: #fff; color: #121212; }
+        .btn-secondary { background-color: var(--accent-gray); color: #fff; border: 1px solid var(--border-color); }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 60px 5%; }
+        .section-title { font-size: 1.6rem; margin-bottom: 40px; border-left: 4px solid #fff; padding-left: 15px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; overflow: hidden; box-shadow: var(--shadow); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .card-image-container img { width: 100%; height: auto; display: block; }
+        .card-content { padding: 25px; }
+        .card-content h3 { margin-bottom: 8px; font-size: 1.2rem; }
+        .card-content p { color: var(--text-sub); font-size: 0.85rem; margin-bottom: 15px; min-height: 40px; }
+
+        .divider { height: 1px; background: var(--border-color); margin: 60px 0; border: none; }
+
+        /* もっと見るボタン */
+        .btn-more { display: block; width: fit-content; margin: 40px auto; background: var(--accent-gray); color: #fff; padding: 14px 35px; border-radius: 50px; cursor: pointer; border: 1px solid var(--border-color); font-weight: bold; transition: 0.3s; }
+        .btn-more:hover { background: #444; }
+
+        .more-content { display: none; opacity: 0; }
+        #show-more-check:checked ~ .grid .more-content { display: block; opacity: 1; animation: fadeIn 0.5s forwards; }
+        #show-more-check:checked ~ .btn-more { display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .member-card { display: flex; align-items: center; gap: 20px; background: var(--bg-card); padding: 25px; border-radius: 15px; border: 1px solid var(--border-color); }
+        footer { text-align: center; padding: 60px; color: var(--text-sub); font-size: 0.8rem; border-top: 1px solid var(--border-color); }
+    </style>
+        <section class="interaction-section">
+            <div class="like-container">
+                <h2 style="margin-bottom: 15px;">このサイトを応援する</h2>
+                <button class="btn-like" onclick="sendLike()">
+                    ❤ いいね！ <span id="like-count">0</span>
+                </button>
+                <p style="color: var(--text-sub); font-size: 0.8rem; margin-top: 10px;">※いいねはDiscordに通知されます</p>
+            </div>
+
+            <div class="feedback-form">
+                <h2 style="text-align: center; margin-bottom: 10px;">フィードバックを送る</h2>
+                <textarea id="feedback-text" class="feedback-input" rows="4" placeholder="改善案や感想を教えてください！"></textarea>
+                <button class="btn-send" onclick="sendFeedback()">Discordへ送信</button>
+            </div>
+        </section>
     </main>
 
     <div id="welcome-notification" class="notification">
@@ -347,13 +527,70 @@
         <button onclick="closeNotif()" class="notif-close">&times;</button>
     </div>
     </div>
-    <div id="welcome-notification" class="notification">
-    <div class="notif-content">
-        <span class="notif-badge">NEW</span>
-        <p>ヘルプが必要？ヘルプ機能を追加しました！ヘルプが使えます。</p>
-        <button onclick="closeNotif()" class="notif-close">&times;</button>
-    </div>
-    </div>
+    <div id="status-notif">送信完了！</div>
+
+    <script>
+        // --- Discord連携設定 ---
+        const DISCORD_WEBHOOK_URL = "YOUR_WEBHOOK_URL_HERE"; // ここに自分のURLを貼る
+
+        // いいね機能
+        let likes = localStorage.getItem('site_likes') || 0;
+        document.getElementById('like-count').innerText = likes;
+
+        function sendLike() {
+            likes++;
+            document.getElementById('like-count').innerText = likes;
+            localStorage.setItem('site_likes', likes);
+
+            showStatus("いいねを送りました！");
+
+            // Discordへ通知
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "❤ 新しい「いいね」が届きました！",
+                        description: `現在の累計いいね数: **${likes}**`,
+                        color: 16729943 // Pink
+                    }]
+                })
+            });
+        }
+
+        // フィードバック機能
+        function sendFeedback() {
+            const text = document.getElementById('feedback-text').value;
+            if (!text) return alert("メッセージを入力してください");
+
+            showStatus("フィードバックを送信中...");
+
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "📩 新しいフィードバック",
+                        description: text,
+                        color: 5814770, // Discord Blue
+                        timestamp: new Date()
+                    }]
+                })
+            }).then(() => {
+                showStatus("Discordへ送信しました！");
+                document.getElementById('feedback-text').value = "";
+            });
+        }
+
+        function showStatus(msg) {
+            const notif = document.getElementById('status-notif');
+            notif.innerText = msg;
+            notif.style.display = "block";
+            setTimeout(() => { notif.style.display = "none"; }, 3000);
+        }
+
+        // (以前の検索用スクリプト等もここに残す)
+    </script>
     <footer>
         <p>&copy; 2026 MCProject. All rights reserved.</p>
     </footer>
@@ -392,8 +629,10 @@ function closeNotif() {
     document.getElementById('welcome-notification').classList.remove('show');
 }
     </script>
+    
 </body>
 </html>
+
 
 
 
