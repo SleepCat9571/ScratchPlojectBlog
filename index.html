@@ -172,6 +172,56 @@
 
         footer { text-align: center; padding: 60px; color: var(--text-sub); font-size: 0.8rem; }
         .search-hide { display: none !important; }
+        /* 通知ポップアップのスタイル */
+.notification {
+    position: fixed;
+    bottom: -100px; /* 最初は画面の下に隠す */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a2a;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 50px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+    border: 1px solid #444;
+    z-index: 1000;
+    transition: bottom 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    width: max-content;
+    max-width: 90%;
+}
+
+.notification.show {
+    bottom: 30px; /* 画面下から30pxの位置に浮き上がる */
+}
+
+.notif-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notif-badge {
+    background: #fff;
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.notif-close {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+    margin-left: 10px;
+}
+
+.notif-close:hover {
+    color: #fff;
+}
     </style>
 </head>
 <body>
@@ -290,6 +340,13 @@
         </div>
     </main>
 
+    <div id="welcome-notification" class="notification">
+    <div class="notif-content">
+        <span class="notif-badge">NEW</span>
+        <p>サイトを更新しました！検索機能が使えます。</p>
+        <button onclick="closeNotif()" class="notif-close">&times;</button>
+    </div>
+    </div>
     <footer>
         <p>&copy; 2026 MCProject. All rights reserved.</p>
     </footer>
@@ -315,7 +372,20 @@
                 }
             });
         });
+
+        // ページ読み込みから1秒後に通知を表示
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.getElementById('welcome-notification').classList.add('show');
+    }, 1000); // 1000ms = 1秒
+});
+
+// 通知を閉じる関数
+function closeNotif() {
+    document.getElementById('welcome-notification').classList.remove('show');
+}
     </script>
 </body>
 </html>
+
 
