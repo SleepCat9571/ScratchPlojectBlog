@@ -10,6 +10,7 @@
             --bg-body: #121212;
             --bg-card: #1e1e1e;
             --bg-nav: rgba(18, 18, 18, 0.9);
+            --bg-sidebar: #181818;
             --text-main: #ffffff;
             --text-sub: #a0a0a0;
             --accent-gray: #333333;
@@ -18,7 +19,6 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-
         body {
             font-family: 'Inter', 'Noto Sans JP', sans-serif;
             background-color: var(--bg-body);
@@ -27,8 +27,12 @@
             overflow-x: hidden;
         }
 
+        /* 制御用 */
+        #sidebar-check, #help-check, #show-more-check { display: none !important; }
+
+        /* ナビゲーション */
         nav {
-            padding: 20px 8%;
+            padding: 10px 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -40,48 +44,91 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        .logo { font-weight: 700; font-size: 1.4rem; letter-spacing: 1px; }
+        .nav-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
+        .menu-btn div { width: 22px; height: 2px; background: #fff; }
+        .logo { font-weight: 700; font-size: 1rem; }
 
+        .search-container { flex-grow: 1; max-width: 350px; margin-left: 20px; }
+        .search-bar {
+            width: 100%;
+            padding: 10px 20px;
+            background: var(--accent-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            color: #fff;
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        /* サイドバー */
+        .sidebar {
+            position: fixed;
+            top: 0; left: -280px;
+            width: 280px; height: 100%;
+            background: var(--bg-sidebar);
+            z-index: 150;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 100px 30px;
+            border-right: 1px solid var(--border-color);
+        }
+        #sidebar-check:checked ~ .sidebar { left: 0; }
+        .sidebar-item {
+            display: block; color: var(--text-main); text-decoration: none;
+            padding: 15px 0; border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 140; display: none;
+        }
+        #sidebar-check:checked ~ .overlay { display: block; }
+
+        /* ヘルプモーダル */
+        .modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%; max-width: 400px;
+            background: var(--bg-card); padding: 30px;
+            border-radius: 15px; z-index: 300;
+            display: none; text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        #help-check:checked ~ .modal { display: block; }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 250; display: none;
+        }
+        #help-check:checked ~ .modal-overlay { display: block; }
+
+        /* ヘッダー */
         header {
             text-align: center;
             padding: 100px 20px;
             background: radial-gradient(circle at center, #1a1a1a 0%, #121212 100%);
         }
-
         .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: var(--accent-gray);
-            color: var(--text-sub);
-            border-radius: 6px;
-            font-size: 0.8rem;
-            margin-bottom: 20px;
+            display: inline-block; padding: 4px 12px;
+            background: var(--accent-gray); color: var(--text-sub);
+            border-radius: 6px; font-size: 0.8rem; margin-bottom: 20px;
             border: 1px solid var(--border-color);
         }
-
         h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 20px; }
+        .hero-text { color: var(--text-sub); max-width: 600px; margin: 0 auto 30px; }
 
-        .btn-group { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
-
+        /* ボタン */
         .btn {
-            display: inline-block;
-            padding: 12px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: 0.3s;
-            border: none;
-            cursor: pointer;
+            display: inline-block; padding: 12px 30px;
+            border-radius: 8px; text-decoration: none;
+            font-weight: 600; transition: 0.3s; border: none; cursor: pointer;
         }
+        .btn-primary { background: #fff; color: #121212; }
+        .btn-primary:hover { background: #ccc; }
 
-        .btn-primary { background-color: #fff; color: #121212; }
-        .btn-primary:hover { background-color: #ccc; }
-        .btn-secondary { background-color: var(--accent-gray); color: #fff; border: 1px solid var(--border-color); }
-
+        /* メインコンテンツ */
         .container { max-width: 1100px; margin: 0 auto; padding: 60px 5%; }
         .section-title { font-size: 1.8rem; margin-bottom: 40px; border-left: 4px solid #fff; padding-left: 15px; }
 
-        /* グリッドとカード */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -89,93 +136,80 @@
         }
 
         .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);
             transition: 0.3s;
         }
-
         .card:hover { transform: translateY(-5px); }
-        .card-image-container img { width: 100%; height: auto; display: block; }
+        .card img { width: 100%; height: auto; display: block; }
         .card-content { padding: 25px; border-top: 1px solid var(--border-color); }
         .card-content h3 { margin-bottom: 10px; }
         .card-content p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; }
 
-        /* 区切り線 */
-        .divider {
-            height: 1px;
-            background: var(--border-color);
-            margin: 60px 0;
-            border: none;
-        }
+        /* もっと見るの制御 */
+        .more-content { display: none; }
+        #show-more-check:checked ~ .container .grid .more-content { display: block; animation: fadeIn 0.5s forwards; }
+        #show-more-check:checked ~ .container .btn-more { display: none; }
 
-        /* --- 「もっと見る」の機能 --- */
-        #show-more-check { display: none; }
-        
-        .more-content {
-            display: none; /* 最初は隠す */
-            opacity: 0;
-        }
-
-        /* ボタンをラベルで作成 */
         .btn-more {
-            display: block;
-            width: fit-content;
-            margin: 40px auto;
-            background: var(--accent-gray);
-            color: #fff;
-            padding: 15px 40px;
-            border-radius: 50px;
-            cursor: pointer;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            font-weight: bold;
+            display: block; width: fit-content; margin: 40px auto;
+            background: var(--accent-gray); color: #fff;
+            padding: 15px 40px; border-radius: 50px;
+            cursor: pointer; text-align: center;
+            border: 1px solid var(--border-color); font-weight: bold;
         }
 
-        /* チェックが入ったら隠しカードを表示 */
-        #show-more-check:checked ~ .grid .more-content {
-            display: block;
-            opacity: 1;
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        /* チェックが入ったらボタンを消す */
-        #show-more-check:checked ~ .btn-more { display: none; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* メンバー */
         .member-card {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: var(--bg-card);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid var(--border-color);
+            display: flex; align-items: center; gap: 20px;
+            background: var(--bg-card); padding: 25px;
+            border-radius: 15px; border: 1px solid var(--border-color);
             margin-top: 40px;
         }
-
-        .avatar { width: 60px; height: 60px; background: #333; border-radius: 50%; }
+        .member-info span { font-size: 0.9rem; color: var(--text-sub); }
 
         footer { text-align: center; padding: 60px; color: var(--text-sub); font-size: 0.8rem; }
-
-        icon img { vertical-align: middle; }
+        .search-hide { display: none !important; }
     </style>
 </head>
 <body>
 
+    <input type="checkbox" id="sidebar-check">
+    <input type="checkbox" id="help-check">
+    <input type="checkbox" id="show-more-check">
+
     <nav>
-        <div class="logo">スクラッチ-Project共有サイト</div>
+        <div class="nav-left">
+            <label for="sidebar-check" class="menu-btn"><div></div><div></div><div></div></label>
+            <div class="logo">スクラッチ-Project共有サイト</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="js-search" class="search-bar" placeholder="プロジェクトを検索...">
+        </div>
     </nav>
 
+    <aside class="sidebar">
+        <a href="#" class="sidebar-item">ホーム</a>
+        <label for="help-check" class="sidebar-item">サイトの使い方</label>
+        <a href="https://discord.gg/hgJ5pCdYK6" class="sidebar-item" target="_blank">Discord Server</a>
+    </aside>
+    <label for="sidebar-check" class="overlay"></label>
+
+    <div class="modal">
+        <h3>使い方ガイド</h3>
+        <p style="margin: 20px 0; color: var(--text-sub); font-size: 0.9rem;">
+            ・検索バーで作品を瞬時に絞り込めます。<br>
+            ・「その他の作品」で隠れたプロジェクトを表示します。<br>
+            ・作品の追加希望はDiscordへ！
+        </p>
+        <label for="help-check" style="cursor:pointer; color:#fff; background:#444; padding:8px 20px; border-radius:5px;">閉じる</label>
+    </div>
+    <label for="help-check" class="modal-overlay"></label>
+
     <header>
-        <div class="badge">v.1.0.0 - Stable</div>
+        <div class="badge">v.1.1.0 - Stable</div>
         <h1>Scratch-Project共有サイト</h1>
         <p class="hero-text">シンプルさと使いやすさを追求した、新しい形のプロジェクトインターフェース。</p>
         <div class="btn-group">
@@ -186,13 +220,9 @@
     <main class="container">
         <h2 class="section-title">トップ共有されたプロジェクト</h2>
 
-        <input type="checkbox" id="show-more-check">
-
-        <div class="grid">
-            <div class="card">
-                <div class="card-image-container">
-                    <img src="https://scratch.mit.edu/get_image/project/1259915297_480x360.png" alt="Screenshot">
-                </div>
+        <div class="grid" id="project-grid">
+            <div class="card project-item">
+                <img src="https://scratch.mit.edu/get_image/project/1259915297_480x360.png">
                 <div class="card-content">
                     <h3>ブレインロット クリッカー</h3>
                     <p>おすすめのクリッカーゲームです。</p>
@@ -200,10 +230,8 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-image-container">
-                    <img src="https://scratch.mit.edu/get_image/project/307476661_480x360.png" alt="Screenshot">
-                </div>
+            <div class="card project-item">
+                <img src="https://scratch.mit.edu/get_image/project/307476661_480x360.png">
                 <div class="card-content">
                     <h3>3D Open World</h3>
                     <p>スクラッチで描かれる広大な3Dの世界。</p>
@@ -211,10 +239,8 @@
                 </div>
             </div>
 
-            <div class="card more-content">
-                <div class="card-image-container">
-                    <img src="https://uploads.scratch.mit.edu/get_image/project/1163188471_480x360.png" alt="Screenshot">
-                </div>
+            <div class="card project-item more-content">
+                <img src="https://uploads.scratch.mit.edu/get_image/project/1163188471_480x360.png">
                 <div class="card-content">
                     <h3>オレンジピンポンゲーム</h3>
                     <p>オレンジをはねるピンポンゲームです。</p>
@@ -222,65 +248,73 @@
                 </div>
             </div>
 
-            <div class="card more-content">
-                <div class="card-image-container">
-                    <img src="https://uploads.scratch.mit.edu/get_image/project/1134606936_480x360.png" alt="Screenshot">
-                </div>
+            <div class="card project-item more-content">
+                <img src="https://uploads.scratch.mit.edu/get_image/project/1134606936_480x360.png">
                 <div class="card-content">
                     <h3>便利ツール</h3>
                     <p>スクラッチのプロジェクトのサムネイルがゲットできます。</p>
                     <a href="https://scratch.mit.edu/projects/1134606936/" class="btn btn-primary">今すぐ試す</a>
                 </div>
             </div>
-            <div class="card more-content">
-            <div class="card-image-container">
-                <img src="https://uploads.scratch.mit.edu/get_image/project/1261118333_480x360.png" alt="Screenshot">
-            </div>
-            <div class="card-content">
-                <h3>立ち絵作ったよー！</h3>
-                <p>立ち絵書いたよ～！（一部トレス）ついでに自己紹介もあるらしい。</p>
-                <a href="https://scratch.mit.edu/projects/1261118333/" class="btn btn-primary" >今すぐ試す</a>
-            </div>    
-            </div>
-                <div class="card more-content">
-                    <div class="card-image-container">
-                        <img src="https://uploads.scratch.mit.edu/get_image/project/1238399568_480x360.png">
-                    <div class="card-content">
-                        <h3>Get The Frog Out Of Here!</h3>
-                        <p>ユーザーはカエルとしてプレイし、大地をジャンプしながら、草原から月まで世界を飛び回ります！(翻訳された説明)</p>
-                        <a href="https://scratch.mit.edu/projects/1238399568/" class="btn btn-primary" >今すぐ試す</a>
-                    </div>
+
+            <div class="card project-item more-content">
+                <img src="https://uploads.scratch.mit.edu/get_image/project/1261118333_480x360.png">
+                <div class="card-content">
+                    <h3>立ち絵作ったよー！</h3>
+                    <p>立ち絵書いたよ～！（一部トレス）ついでに自己紹介もあるらしい。</p>
+                    <a href="https://scratch.mit.edu/projects/1261118333/" class="btn btn-primary">今すぐ試す</a>
                 </div>
             </div>
 
+            <div class="card project-item more-content">
+                <img src="https://uploads.scratch.mit.edu/get_image/project/1238399568_480x360.png">
+                <div class="card-content">
+                    <h3>Get The Frog Out Of Here!</h3>
+                    <p>カエルとして草原から月まで世界を飛び回ります！</p>
+                    <a href="https://scratch.mit.edu/projects/1238399568/" class="btn btn-primary">今すぐ試す</a>
+                </div>
+            </div>
         </div>
+
         <label for="show-more-check" class="btn-more">その他の作品を表示</label>
 
-        <hr class="divider">
+        <div style="margin: 60px 0; height: 1px; background: var(--border-color);"></div>
 
         <h2 class="section-title">ホームページ作成者</h2>
-            <div class="member-card">
-                <div class="member-info">
-                    <icon>
-                        <img src="ドット絵みかんネコ.png" style="width:60px; height:60px; border-radius:50%;">
-                    </icon>
-                    <strong>Mikancat10</strong><br>
-                    <span>HTML/CSS、JavaScriptができます</span>
-                </div>
+        <div class="member-card">
+            <img src="ドット絵みかんネコ.png" style="width:60px; height:60px; border-radius:50%; background:#333;">
+            <div class="member-info">
+                <strong>Mikancat10</strong><br>
+                <span>HTML/CSS、JavaScriptができます。対応時間：14:00~22:00</span>
             </div>
-            <span>ディスコード、スクラッチでの対応時間は14:00~22:00までです</span>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2025 MCProject. All rights reserved.</p>
     </footer>
 
+    <script>
+        const searchInput = document.getElementById('js-search');
+        const projects = document.querySelectorAll('.project-item');
+
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            projects.forEach(project => {
+                const title = project.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    project.classList.remove('search-hide');
+                    // 検索時は隠れている作品も一時的に見えるようにする
+                    if(project.classList.contains('more-content') && query !== "") {
+                        project.style.display = "block";
+                    } else if(project.classList.contains('more-content') && !document.getElementById('show-more-check').checked) {
+                        project.style.display = "none";
+                    }
+                } else {
+                    project.classList.add('search-hide');
+                }
+            });
+        });
+    </script>
 </body>
-
 </html>
-
-
-
-
-
-
