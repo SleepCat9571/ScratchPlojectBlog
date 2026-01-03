@@ -29,7 +29,7 @@
             overflow-x: hidden;
         }
 
-        /* 制御用 */
+        /* 制御用スイッチ */
         #sidebar-check, #help-check, #show-more-check { display: none !important; }
 
         /* ナビゲーション */
@@ -103,6 +103,7 @@
         }
         #help-check:checked ~ .modal-overlay { display: block; }
 
+        /* ヘッダー */
         header {
             text-align: center;
             padding: 100px 20px;
@@ -125,6 +126,7 @@
         .btn-primary { background: #fff; color: #121212; }
         .btn-primary:hover { background: #ccc; }
 
+        /* コンテンツエリア */
         .container { max-width: 1100px; margin: 0 auto; padding: 60px 5%; }
         .section-title { font-size: 1.8rem; margin-bottom: 40px; border-left: 4px solid #fff; padding-left: 15px; }
 
@@ -144,6 +146,7 @@
         .card-content h3 { margin-bottom: 10px; }
         .card-content p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; }
 
+        /* もっと見るの制御 */
         .more-content { display: none; }
         #show-more-check:checked ~ .container .grid .more-content { display: block; animation: fadeIn 0.5s forwards; }
         #show-more-check:checked ~ .container .btn-more { display: none; }
@@ -156,7 +159,7 @@
             border: 1px solid var(--border-color); font-weight: bold;
         }
 
-        /* インタラクションセクション（いいね・フィードバック） */
+        /* いいね・フィードバックエリア */
         .interaction-section {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -184,15 +187,16 @@
             border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer;
         }
 
-        /* メンバー */
+        /* メンバー紹介 */
         .member-card {
             display: flex; align-items: center; gap: 20px;
             background: var(--bg-card); padding: 25px;
             border-radius: 15px; border: 1px solid var(--border-color);
             margin-top: 40px;
         }
+        .member-info span { font-size: 0.9rem; color: var(--text-sub); }
 
-        /* 通知 */
+        /* 通知ポップアップ */
         .notification {
             position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
             background: #2a2a2a; color: white; padding: 15px 25px;
@@ -205,7 +209,6 @@
         .notif-badge { background: #fff; color: #000; font-size: 0.7rem; font-weight: bold; padding: 2px 8px; border-radius: 4px; }
         .notif-close { background: none; border: none; color: #888; font-size: 1.5rem; cursor: pointer; }
 
-        /* 送信完了ステータス */
         #status-msg {
             position: fixed; top: 20px; right: 20px;
             background: #2ed573; color: white; padding: 10px 20px;
@@ -330,7 +333,7 @@
             </div>
             <div class="feedback-box">
                 <h2>フィードバックを送る</h2>
-                <textarea id="fb-text" class="feedback-input" rows="3" placeholder="感想や改善案をDiscordに送ります..."></textarea>
+                <textarea id="fb-text" class="feedback-input" rows="3" placeholder="感想や改善案を特定のDiscordチャンネルに送ります..."></textarea>
                 <button class="btn-send" onclick="sendFeedback()">Discordへ送信</button>
             </div>
         </section>
@@ -362,56 +365,85 @@
     </footer>
 
     <script>
-        // --- 設定：ここにWebhook URLを貼ってください ---
-// --- 設定：それぞれのチャンネルのURLを貼り付けてください ---
-const LIKE_WEBHOOK_URL = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
-        const FEEDBACK_WEBHOOK_URL = "https://discord.com/channels/1446054090852274311/1453653579834589349";
-// --- いいね機能 ---
-function sendLike() {
-    likes++;
-    document.getElementById('like-count').innerText = likes;
-    localStorage.setItem('mc_likes', likes);
-    notifyStatus("いいねを送りました！");
+        // --- 設定：それぞれの通知先URLを貼り付けてください ---
+        const LIKE_WEBHOOK_URL = "ここに【いいね用チャンネル】のURLを貼る";
+        const FEEDBACK_WEBHOOK_URL = "ここに【フィードバック用チャンネル】のURLを貼る";
 
-    // 【いいね専用】のURLに送る
-    fetch(LIKE_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            embeds: [{
-                title: "❤ サイトに「いいね」がつきました！",
-                description: `現在の合計いいね: **${likes}**`,
-                color: 16730199
-            }]
-        })
-    });
-}
+        // 検索機能
+        const searchInput = document.getElementById('js-search');
+        const projects = document.querySelectorAll('.project-item');
 
-// --- フィードバック機能 ---
-function sendFeedback() {
-    const text = document.getElementById('fb-text').value;
-    if(!text) return alert("内容を入力してください");
+        searchInput.addEventListener('input', () => {
+            const query = searchInput.value.toLowerCase();
+            projects.forEach(project => {
+                const title = project.querySelector('h3').innerText.toLowerCase();
+                if (title.includes(query)) {
+                    project.classList.remove('search-hide');
+                    if(project.classList.contains('more-content') && query !== "") {
+                        project.style.display = "block";
+                    } else if(project.classList.contains('more-content') && !document.getElementById('show-more-check').checked) {
+                        project.style.display = "none";
+                    }
+                } else {
+                    project.classList.add('search-hide');
+                }
+            });
+        });
 
-    notifyStatus("送信中...");
+        // いいね機能
+        let likes = parseInt(localStorage.getItem('mc_likes')) || 0;
+        document.getElementById('like-count').innerText = likes;
 
-    // 【フィードバック専用】のURLに送る
-    fetch(FEEDBACK_WEBHOOK_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            embeds: [{
-                title: "📩 新しいフィードバック",
-                description: text,
-                color: 5814770,
-                timestamp: new Date()
-            }]
-        })
-    }).then(() => {
-        notifyStatus("送信完了しました！");
-        document.getElementById('fb-text').value = "";
-    });
-}
-        // ウェルカム通知
+        function sendLike() {
+            likes++;
+            document.getElementById('like-count').innerText = likes;
+            localStorage.setItem('mc_likes', likes);
+            notifyStatus("いいねを送りました！");
+
+            fetch(LIKE_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "❤ サイトに「いいね」がつきました！",
+                        description: `現在の合計いいね: **${likes}**`,
+                        color: 16730199
+                    }]
+                })
+            });
+        }
+
+        // フィードバック機能
+        function sendFeedback() {
+            const text = document.getElementById('fb-text').value;
+            if(!text) return alert("内容を入力してください");
+
+            notifyStatus("送信中...");
+            fetch(FEEDBACK_WEBHOOK_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: "📩 新しいフィードバック",
+                        description: text,
+                        color: 5814770,
+                        timestamp: new Date()
+                    }]
+                })
+            }).then(() => {
+                notifyStatus("送信完了しました！");
+                document.getElementById('fb-text').value = "";
+            });
+        }
+
+        function notifyStatus(msg) {
+            const el = document.getElementById('status-msg');
+            el.innerText = msg;
+            el.style.display = "block";
+            setTimeout(() => { el.style.display = "none"; }, 3000);
+        }
+
+        // ウェルカム通知の表示（1秒後）
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 document.getElementById('welcome-notification').classList.add('show');
@@ -424,8 +456,6 @@ function sendFeedback() {
     </script>
 </body>
 </html>
-
-
 
 
 
