@@ -372,7 +372,19 @@
                 }
             });
         });
+        // ページ読み込みから1秒後に通知を表示
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        document.getElementById('welcome-notification').classList.add('show');
+    }, 1000); // 1000ms = 1秒
+});
+
+// 通知を閉じる関数
+function closeNotif() {
+    document.getElementById('welcome-notification').classList.remove('show');
+}
     </script>
 </body>
 </html>
+
 
