@@ -264,6 +264,10 @@
     </header>
 
     <main class="container">
+                <div id="api-result-container">
+            <h2 class="section-title" style="border-color: var(--scratch-orange);">IDで見つかった作品</h2>
+            <div id="api-output" class="grid"></div>
+        </div>
         <h2 class="section-title">トップ共有されたプロジェクト</h2>
 
         <div class="grid" id="project-grid">
@@ -365,29 +369,59 @@
     </footer>
 
     <script>
-        // --- 設定：それぞれの通知先URLを貼り付けてください ---
         const LIKE_WEBHOOK_URL = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
         const FEEDBACK_WEBHOOK_URL = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
 
-        // 検索機能
         const searchInput = document.getElementById('js-search');
         const projects = document.querySelectorAll('.project-item');
+        const apiContainer = document.getElementById('api-result-container');
+        const apiOutput = document.getElementById('api-output');
 
-        searchInput.addEventListener('input', () => {
-            const query = searchInput.value.toLowerCase();
+        // 検索とID取得機能
+        searchInput.addEventListener('input', async () => {
+            const query = searchInput.value.trim();
+            const lowQuery = query.toLowerCase();
+
+            // 1. 文字列検索（既存カード）
             projects.forEach(project => {
                 const title = project.querySelector('h3').innerText.toLowerCase();
-                if (title.includes(query)) {
-                    project.classList.remove('search-hide');
-                    if(project.classList.contains('more-content') && query !== "") {
-                        project.style.display = "block";
-                    } else if(project.classList.contains('more-content') && !document.getElementById('show-more-check').checked) {
-                        project.style.display = "none";
-                    }
-                } else {
-                    project.classList.add('search-hide');
+                const isMatch = title.includes(lowQuery);
+                project.classList.toggle('search-hide', !isMatch);
+                
+                // 「もっと見る」の中身を強制表示（検索中のみ）
+                if(project.classList.contains('more-content')) {
+                    project.style.display = (isMatch && query !== "") ? "block" : "";
                 }
             });
+
+            // 2. ID検索（corsproxy.ioを使用）
+            if (/^\d{5,}$/.test(query)) {
+                try {
+                    const apiUrl = `https://corsproxy.io/?https://api.scratch.mit.edu/projects/${query}`;
+                    const res = await fetch(apiUrl);
+                    if (res.ok) {
+                        const data = await res.json();
+                        apiContainer.style.display = 'block';
+                        const thumb = `https://uploads.scratch.mit.edu/get_image/project/${query}_480x360.png`;
+                        apiOutput.innerHTML = `
+                            <div class="card" style="border: 2px solid var(--scratch-orange);">
+                                <img src="${thumb}" onerror="this.src='https://scratch.mit.edu/static/images/default-project.png'">
+                                <div class="card-content">
+                                    <h3>${data.title}</h3>
+                                    <p>作者: ${data.author.username} | 参照: ${data.stats.views}</p>
+                                    <a href="https://scratch.mit.edu/projects/${query}/" class="btn btn-primary" target="_blank" style="background:var(--scratch-orange); color:white;">Scratchで開く</a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        apiContainer.style.display = 'none';
+                    }
+                } catch (e) {
+                    apiContainer.style.display = 'none';
+                }
+            } else {
+                apiContainer.style.display = 'none';
+            }
         });
 
         // いいね機能
@@ -399,55 +433,36 @@
             document.getElementById('like-count').innerText = likes;
             localStorage.setItem('mc_likes', likes);
             notifyStatus("いいねを送りました！");
-
             fetch(LIKE_WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "❤ サイトに「いいね」がつきました！",
-                        description: `現在の合計いいね: **${likes}**`,
-                        color: 16730199
-                    }]
-                })
+                body: JSON.stringify({ embeds: [{ title: "❤ いいね！", description: `累計: ${likes}`, color: 16730199 }] })
             });
         }
 
-        // フィードバック機能
+        // フィードバック
         function sendFeedback() {
             const text = document.getElementById('fb-text').value;
-            if(!text) return alert("内容を入力してください");
-
+            if(!text) return;
             notifyStatus("送信中...");
             fetch(FEEDBACK_WEBHOOK_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    embeds: [{
-                        title: "📩 新しいフィードバック",
-                        description: text,
-                        color: 5814770,
-                        timestamp: new Date()
-                    }]
-                })
+                body: JSON.stringify({ embeds: [{ title: "📩 フィードバック", description: text, color: 5814770, timestamp: new Date() }] })
             }).then(() => {
-                notifyStatus("送信完了しました！");
+                notifyStatus("送信完了！");
                 document.getElementById('fb-text').value = "";
             });
         }
 
         function notifyStatus(msg) {
             const el = document.getElementById('status-msg');
-            el.innerText = msg;
-            el.style.display = "block";
+            el.innerText = msg; el.style.display = "block";
             setTimeout(() => { el.style.display = "none"; }, 3000);
         }
 
-        // ウェルカム通知の表示（1秒後）
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                document.getElementById('welcome-notification').classList.add('show');
-            }, 1000);
+            setTimeout(() => document.getElementById('welcome-notification').classList.add('show'), 1000);
         });
 
         function closeNotif() {
@@ -456,9 +471,5 @@
     </script>
 </body>
 </html>
-
-
-
-
 
 
