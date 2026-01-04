@@ -3,410 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dark Project | Scratch Share</title>
+    <title>NEXT-HUB | Secure Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* 以前のスタイルを適用 */
         :root {
-            --bg-body: #121212;
-            --bg-card: #1e1e1e;
-            --bg-nav: rgba(18, 18, 18, 0.9);
-            --bg-sidebar: #181818;
+            --bg-body: #0d0d0d;
+            --bg-header: radial-gradient(circle at center, #1a1a1a 0%, #0d0d0d 100%);
+            --bg-card: #181818;
+            --bg-nav: rgba(13, 13, 13, 0.9);
+            --bg-sidebar: #121212;
             --text-main: #ffffff;
             --text-sub: #a0a0a0;
-            --accent-gray: #333333;
             --border-color: #2c2c2c;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            --discord-color: #5865F2;
-            --like-color: #ff4757;
+            --ai-purple: #8e44ad;
             --scratch-blue: #4d97ff;
-            --scratch-orange: #ffab19;
+            --like-color: #ff4757;
         }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: 'Inter', 'Noto Sans JP', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            line-height: 1.7;
-            overflow-x: hidden;
-        }
-
-        #sidebar-check, #help-check, #logs-check, #show-more-check { display: none !important; }
-
-        nav {
-            padding: 10px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--bg-nav);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-bottom: 1px solid var(--border-color);
-        }
-
+        body { font-family: 'Inter', 'Noto Sans JP', sans-serif; background-color: var(--bg-body); color: var(--text-main); margin:0; }
+        nav { padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--bg-nav); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border-color); }
         .nav-left { display: flex; align-items: center; gap: 15px; }
-        .menu-btn { cursor: pointer; padding: 10px; display: flex; flex-direction: column; gap: 5px; }
-        .menu-btn div { width: 22px; height: 2px; background: #fff; }
-        .logo { font-weight: 700; font-size: 1rem; }
+        .logo { font-weight: 700; font-size: 1.2rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 30px 5%; }
+        
+        /* ページ制御 */
+        #home-radio, #news-radio, #ai-radio, #general-radio, #sidebar-check { display: none !important; }
+        .page-content { display: none; }
+        #home-radio:checked ~ .container #home-page,
+        #ai-radio:checked ~ .container #ai-page { display: block; }
 
-        .search-container { flex-grow: 1; max-width: 350px; margin-left: 20px; }
-        .search-bar {
-            width: 100%;
-            padding: 10px 20px;
-            background: var(--accent-gray);
-            border: 1px solid var(--border-color);
-            border-radius: 25px;
+        /* APIキー設定エリアのスタイル */
+        .api-setting-banner {
+            background: #2a1a3a;
+            border: 1px solid var(--ai-purple);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+        .api-setting-banner input {
+            background: #000;
+            border: 1px solid #444;
             color: #fff;
-            outline: none;
-            font-size: 0.9rem;
+            padding: 8px;
+            border-radius: 5px;
+            flex-grow: 1;
         }
 
-        .sidebar {
-            position: fixed;
-            top: 0; left: -280px;
-            width: 280px; height: 100%;
-            background: var(--bg-sidebar);
-            z-index: 150;
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 100px 30px;
-            border-right: 1px solid var(--border-color);
-        }
-        #sidebar-check:checked ~ .sidebar { left: 0; }
-        .sidebar-item {
-            display: block; color: var(--text-main); text-decoration: none;
-            padding: 15px 0; border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); z-index: 140; display: none;
-        }
-        #sidebar-check:checked ~ .overlay { display: block; }
-
-        .modal {
-            position: fixed; top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%; max-width: 400px;
-            background: var(--bg-card); padding: 30px;
-            border-radius: 15px; z-index: 300;
-            display: none; text-align: center;
-            border: 1px solid var(--border-color);
-            box-shadow: var(--shadow);
-        }
-        #help-check:checked ~ #help-modal,
-        #logs-check:checked ~ #logs-modal { display: block; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 250; display: none;
-        }
-        #help-check:checked ~ .modal-overlay,
-        #logs-check:checked ~ .modal-overlay { display: block; }
-
-        header {
-            text-align: center;
-            padding: 100px 20px;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #121212 100%);
-        }
-        .badge {
-            display: inline-block; padding: 4px 12px;
-            background: var(--accent-gray); color: var(--text-sub);
-            border-radius: 6px; font-size: 0.8rem; margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-        }
-        h1 { font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 20px; }
-        .hero-text { color: var(--text-sub); max-width: 600px; margin: 0 auto 30px; }
-
-        .btn {
-            display: inline-block; padding: 12px 30px;
-            border-radius: 8px; text-decoration: none;
-            font-weight: 600; transition: 0.3s; border: none; cursor: pointer;
-        }
-        .btn-primary { background: #fff; color: #121212; }
-
-        .container { max-width: 1100px; margin: 0 auto; padding: 60px 5%; }
-        .section-title { font-size: 1.8rem; margin-bottom: 40px; border-left: 4px solid #fff; padding-left: 15px; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
-        .card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 20px; overflow: hidden; box-shadow: var(--shadow);
-            transition: 0.3s;
-        }
-        .card img { width: 100%; height: auto; display: block; }
-        .card-content { padding: 25px; border-top: 1px solid var(--border-color); }
-        .card-content h3 { margin-bottom: 10px; }
-        .card-content p { color: var(--text-sub); font-size: 0.9rem; margin-bottom: 15px; }
-
-        /* もっと見るの制御 */
-        .more-content { display: none; }
-        #show-more-check:checked ~ .container .grid .more-content { display: block; animation: fadeIn 0.5s forwards; }
-        #show-more-check:checked ~ .container .btn-more { display: none; }
-
-        .btn-more {
-            display: block; width: fit-content; margin: 40px auto;
-            background: var(--accent-gray); color: #fff;
-            padding: 15px 40px; border-radius: 50px;
-            cursor: pointer; text-align: center;
-            border: 1px solid var(--border-color); font-weight: bold;
-        }
-
-        .interaction-section {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 20px; padding: 40px; margin-top: 60px; text-align: center;
-        }
-
-        .feedback-input {
-            width: 100%; background: var(--accent-gray); border: 1px solid var(--border-color);
-            border-radius: 10px; padding: 15px; color: white; margin-bottom: 10px;
-        }
-
-        .member-card {
-            display: flex; align-items: center; gap: 20px;
-            background: var(--bg-card); padding: 25px;
-            border-radius: 15px; border: 1px solid var(--border-color);
-            margin-top: 40px;
-        }
-
-        .notification {
-            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
-            background: #2a2a2a; color: white; padding: 15px 25px;
-            border-radius: 50px; border: 1px solid #444; z-index: 1000; transition: 0.6s;
-        }
-        .notification.show { bottom: 30px; }
-
-        footer { text-align: center; padding: 60px; color: var(--text-sub); font-size: 0.8rem; }
-        .search-hide { display: none !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-box { background: var(--bg-card); border-radius: 15px; border: 1px solid var(--border-color); height: 500px; display: flex; flex-direction: column; overflow: hidden; }
+        #chat-msgs { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { max-width: 85%; padding: 10px 15px; border-radius: 12px; }
+        .msg.user { align-self: flex-end; background: var(--ai-purple); }
+        .msg.bot { align-self: flex-start; background: #333; }
+        .btn { padding: 8px 18px; border-radius: 6px; cursor: pointer; border: none; font-weight: 600; }
     </style>
 </head>
 <body>
 
+    <input type="radio" name="page" id="home-radio" checked>
+    <input type="radio" name="page" id="ai-radio">
     <input type="checkbox" id="sidebar-check">
-    <input type="checkbox" id="help-check">
-    <input type="checkbox" id="logs-check">
-    <input type="checkbox" id="show-more-check">
 
     <nav>
         <div class="nav-left">
-            <label for="sidebar-check" class="menu-btn"><div></div><div></div><div></div></label>
-            <div class="logo">スクラッチ-Project共有サイト</div>
+            <label for="sidebar-check" style="cursor:pointer;">☰</label>
+            <div class="logo">NEXT-HUB</div>
         </div>
-        <div class="search-container">
-            <input type="text" id="js-search" class="search-bar" placeholder="名前, ID, または @ユーザー名...">
+        <div style="display:flex; gap:15px;">
+            <label for="home-radio" style="cursor:pointer;">HOME</label>
+            <label for="ai-radio" style="cursor:pointer;">AI</label>
         </div>
     </nav>
 
-    <aside class="sidebar">
-        <a href="#" class="sidebar-item">ホーム</a>
-        <label for="logs-check" class="sidebar-item">更新ログ</label>
-        <label for="help-check" class="sidebar-item">サイトの使い方</label>
-        <a href="https://discord.gg/hgJ5pCdYK6" class="sidebar-item" target="_blank">Discord Server</a>
-    </aside>
-    <label for="sidebar-check" class="overlay"></label>
-
-    <div class="modal" id="help-modal">
-        <h3>使い方ガイド</h3>
-        <p style="margin: 20px 0; color: var(--text-sub); font-size: 0.9rem;">
-            ・検索バーで作品を絞り込めます。<br>
-            ・<b>@名前</b> でユーザー検索が可能です。<br>
-            ・作品の追加希望はDiscordへ！
-        </p>
-        <label for="help-check" style="cursor:pointer; color:#fff; background:#444; padding:8px 20px; border-radius:5px;">閉じる</label>
-    </div>
-
-    <div class="modal" id="logs-modal">
-        <h3>更新履歴</h3>
-        <div style="text-align: left; margin: 15px 0; max-height: 200px; overflow-y: auto; font-size: 0.9rem;">
-            <div style="padding:8px 0; border-bottom:1px solid #333;"><span style="color:var(--text-sub);">2026/01/03</span><br>ユーザー検索(@形式)と更新ログ機能を追加。</div>
-            <div style="padding:8px 0; border-bottom:1px solid #333;"><span style="color:var(--text-sub);">2026/01/02</span><br>ID検索機能とScratch APIの統合。</div>
-        </div>
-        <label for="logs-check" style="cursor:pointer; color:#fff; background:#444; padding:8px 20px; border-radius:5px;">閉じる</label>
-    </div>
-    <label for="help-check" class="modal-overlay"></label>
-    <label for="logs-check" class="modal-overlay"></label>
-
-    <header>
-        <div class="badge">v.1.2.0 - All Projects Ready</div>
-        <h1>Scratch-Project共有サイト</h1>
-        <p class="hero-text">シンプルさと使いやすさを追求した、新しい形のプロジェクトインターフェース。</p>
-        <a href="https://discord.gg/hgJ5pCdYK6" class="btn btn-primary" target="_blank">Discord Server</a>
-    </header>
-
     <main class="container">
-        <div id="api-result-container" style="display:none; margin-bottom: 40px;">
-            <h2 class="section-title" id="api-title" style="border-color: var(--scratch-orange);">検索結果</h2>
-            <div id="api-output" class="grid"></div>
-        </div>
+        <div id="home-page" class="page-content">
+            <h2>Scratch Projects</h2>
+            <p>GitHub Pagesで公開しても安心な設定です。</p>
+            </div>
 
-        <h2 class="section-title">トップ共有されたプロジェクト</h2>
-        <div class="grid" id="project-grid">
-            
-            <div class="card project-item">
-                <img src="https://scratch.mit.edu/get_image/project/1259915297_480x360.png">
-                <div class="card-content">
-                    <h3>ブレインロット クリッカー</h3>
-                    <p>おすすめのクリッカーゲームです。</p>
-                    <a href="https://scratch.mit.edu/projects/1259915297/" class="btn btn-primary" target="_blank">今すぐ試す</a>
+        <div id="ai-page" class="page-content">
+            <div class="api-setting-banner">
+                <span>🔑 OpenAI APIキーを設定:</span>
+                <input type="password" id="user-sk-key" placeholder="sk-...">
+                <button onclick="saveKey()" class="btn" style="background:#fff; color:#000;">保存</button>
+                <small style="width:100%; color:var(--text-sub);">※キーはGitHubに送信されず、あなたのブラウザ内のみで利用されます。</small>
+            </div>
+
+            <div class="chat-box">
+                <div id="chat-msgs"><div class="msg bot">APIキーを設定するとチャットができるようになります。</div></div>
+                <div style="padding:15px; background:#111; display:flex; gap:10px;">
+                    <input type="text" id="ai-in" style="flex-grow:1; background:#000; border:1px solid #333; color:#fff; padding:10px; border-radius:8px;" placeholder="AIに質問...">
+                    <button onclick="askAI()" class="btn" style="background:var(--ai-purple); color:white;">送信</button>
                 </div>
-            </div>
-
-            <div class="card project-item">
-                <img src="https://scratch.mit.edu/get_image/project/307476661_480x360.png">
-                <div class="card-content">
-                    <h3>3D Open World</h3>
-                    <p>スクラッチで描かれる広大な3Dの世界。</p>
-                    <a href="https://scratch.mit.edu/projects/307476661/" class="btn btn-primary" target="_blank">今すぐ試す</a>
-                </div>
-            </div>
-
-            <div class="card project-item more-content">
-                <img src="https://uploads.scratch.mit.edu/get_image/project/1163188471_480x360.png">
-                <div class="card-content">
-                    <h3>オレンジピンポンゲーム</h3>
-                    <p>オレンジをはねるピンポンゲームです。</p>
-                    <a href="https://scratch.mit.edu/projects/1163188471/" class="btn btn-primary" target="_blank">今すぐ試す</a>
-                </div>
-            </div>
-
-            <div class="card project-item more-content">
-                <img src="https://uploads.scratch.mit.edu/get_image/project/1134606936_480x360.png">
-                <div class="card-content">
-                    <h3>便利ツール</h3>
-                    <p>スクラッチのプロジェクトのサムネイルがゲットできます。</p>
-                    <a href="https://scratch.mit.edu/projects/1134606936/" class="btn btn-primary" target="_blank">今すぐ試す</a>
-                </div>
-            </div>
-
-            <div class="card project-item more-content">
-                <img src="https://uploads.scratch.mit.edu/get_image/project/1261118333_480x360.png">
-                <div class="card-content">
-                    <h3>立ち絵作ったよー！</h3>
-                    <p>立ち絵書いたよ～！ついでに自己紹介もあるらしい。</p>
-                    <a href="https://scratch.mit.edu/projects/1261118333/" class="btn btn-primary" target="_blank">今すぐ試す</a>
-                </div>
-            </div>
-
-            <div class="card project-item more-content">
-                <img src="https://uploads.scratch.mit.edu/get_image/project/1238399568_480x360.png">
-                <div class="card-content">
-                    <h3>Get The Frog Out Of Here!</h3>
-                    <p>カエルとして草原から月まで世界を飛び回ります！</p>
-                    <a href="https://scratch.mit.edu/projects/1238399568/" class="btn btn-primary" target="_blank">今すぐ試す</a>
-                </div>
-            </div>
-
-        </div>
-
-        <label for="show-more-check" class="btn-more">その他の作品を表示</label>
-
-        <section class="interaction-section">
-            <h2 style="margin-bottom: 15px;">サイトを応援</h2>
-            <button class="btn" style="background:var(--like-color); color:white; border-radius:50px; padding: 12px 35px;" onclick="sendLike()">
-                ❤ いいね！ <span id="like-count">0</span>
-            </button>
-            <div style="margin-top:30px; max-width:600px; margin-left:auto; margin-right:auto;">
-                <h2>フィードバックを送る</h2>
-                <textarea id="fb-text" class="feedback-input" rows="3" placeholder="感想を送る..."></textarea>
-                <button class="btn" style="background:var(--discord-color); color:white; width:100%;" onclick="sendFeedback()">Discordへ送信</button>
-            </div>
-        </section>
-
-        <h2 class="section-title" style="margin-top:60px;">ホームページ作成者</h2>
-        <div class="member-card">
-            <img src="ドット絵みかんネコ.png" style="width:60px; height:60px; border-radius:50%; background:#333;" alt="icon">
-            <div class="member-info">
-                <strong>Mikancat10</strong><br>
-                <span style="color:var(--text-sub); font-size:0.9rem;">HTML/CSS、JavaScriptができます。対応時間：14:00~22:00</span>
             </div>
         </div>
     </main>
 
-    <div id="welcome-notification" class="notification">
-        サイトを更新しました！検索や、更新ログを追加
-    </div>
-
-    <footer>
-        <p>&copy; 2026 MCProject. All rights reserved.</p>
-    </footer>
-
     <script>
-        const LIKE_WEBHOOK = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
-        const FEEDBACK_WEBHOOK = "https://discord.com/api/webhooks/1456940555463426204/pfObzWfMNpYNGWOKkviNCc9NgFGY3oIUm9JOgH_TI0sz-zDJf2OJmQgJoB7sHNnaGB6R";
+        // --- APIキー管理 ---
+        let currentApiKey = "";
 
-        const searchInput = document.getElementById('js-search');
-        const projects = document.querySelectorAll('.project-item');
-        const apiContainer = document.getElementById('api-result-container');
-        const apiOutput = document.getElementById('api-output');
-        const apiTitle = document.getElementById('api-title');
-
-        searchInput.addEventListener('input', async () => {
-            const query = searchInput.value.trim();
-            const lowQuery = query.toLowerCase();
-
-            projects.forEach(p => {
-                const isMatch = p.querySelector('h3').innerText.toLowerCase().includes(lowQuery);
-                p.classList.toggle('search-hide', !isMatch);
-                if(p.classList.contains('more-content')) {
-                    p.style.display = (isMatch && query !== "") ? "block" : "";
-                }
-            });
-
-            if (query.startsWith('@') && query.length > 1) {
-                fetchScratch(`https://api.scratch.mit.edu/users/${query.substring(1)}`, 'user');
-            } else if (/^\d{5,}$/.test(query)) {
-                fetchScratch(`https://api.scratch.mit.edu/projects/${query}`, 'project');
+        function saveKey() {
+            const keyInput = document.getElementById('user-sk-key').value.trim();
+            if (keyInput.startsWith("sk-")) {
+                currentApiKey = keyInput;
+                alert("キーを一時保存しました。チャットが可能です。");
+                document.getElementById('user-sk-key').value = "********"; // 隠す
             } else {
-                apiContainer.style.display = 'none';
+                alert("正しいAPIキー（sk-で始まるもの）を入力してください。");
             }
-        });
+        }
 
-        async function fetchScratch(url, type) {
+        async function askAI() {
+            if (!currentApiKey) {
+                alert("先にAPIキーを設定してください。");
+                return;
+            }
+            const input = document.getElementById('ai-in');
+            const box = document.getElementById('chat-msgs');
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            box.innerHTML += `<div class="msg user">${txt}</div>`;
+            input.value = '';
+
             try {
-                const res = await fetch(`https://corsproxy.io/?${url}`);
-                if (!res.ok) throw new Error();
-                const data = await res.json();
-                apiContainer.style.display = 'block';
-
-                if (type === 'user') {
-                    apiTitle.innerText = "ユーザー情報";
-                    apiTitle.style.borderColor = "var(--scratch-blue)";
-                    apiOutput.innerHTML = `<div class="card" style="grid-column: 1 / -1;"><div style="display:flex; align-items:center; gap:20px; padding:20px;"><img src="https://cdn2.scratch.mit.edu/get_image/user/${data.id}_90x90.png" style="width:70px; border-radius:10px;"><div><h3>${data.username}</h3><a href="https://scratch.mit.edu/users/${data.username}/" target="_blank" class="btn" style="background:var(--scratch-blue); color:white; padding:5px 15px; font-size:0.8rem;">プロフィール</a></div></div></div>`;
-                } else {
-                    apiTitle.innerText = "ID検索結果";
-                    apiTitle.style.borderColor = "var(--scratch-orange)";
-                    apiOutput.innerHTML = `<div class="card" style="border:2px solid var(--scratch-orange);"><img src="https://uploads.scratch.mit.edu/get_image/project/${data.id}_480x360.png"><div class="card-content"><h3>${data.title}</h3><p>作者: ${data.author.username}</p><a href="https://scratch.mit.edu/projects/${data.id}/" class="btn" style="background:var(--scratch-orange); color:white;" target="_blank">開く</a></div></div>`;
-                }
-            } catch (e) { apiContainer.style.display = 'none'; }
+                const res = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json", 
+                        "Authorization": `Bearer ${currentApiKey}` 
+                    },
+                    body: JSON.stringify({ model: "gpt-4o-mini", messages: [{ role: "user", content: txt }] })
+                });
+                const d = await res.json();
+                box.innerHTML += `<div class="msg bot">${d.choices[0].message.content}</div>`;
+            } catch(e) {
+                box.innerHTML += `<div class="msg bot" style="color:red;">エラー：キーが無効か、通信に失敗しました。</div>`;
+            }
+            box.scrollTop = box.scrollHeight;
         }
 
-        let likes = parseInt(localStorage.getItem('mc_likes')) || 0;
-        document.getElementById('like-count').innerText = likes;
-        function sendLike() {
-            likes++;
-            document.getElementById('like-count').innerText = likes;
-            localStorage.setItem('mc_likes', likes);
-            fetch(LIKE_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `❤ いいね！ 累計: ${likes}` }) });
-        }
-
-        function sendFeedback() {
-            const text = document.getElementById('fb-text').value;
-            if(!text) return;
-            fetch(FEEDBACK_WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ embeds: [{ title: "📩 フィードバック", description: text, color: 5814770 }] }) }).then(() => { alert("送信しました！"); document.getElementById('fb-text').value = ""; });
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => document.getElementById('welcome-notification').classList.add('show'), 1000);
-            setTimeout(() => document.getElementById('welcome-notification').classList.remove('show'), 6000);
-        });
+        // いいね機能 (localStorage)
+        let likes = parseInt(localStorage.getItem('next_hub_likes')) || 0;
+        // (以前のいいね数表示処理などを追加)
     </script>
 </body>
 </html>
-
